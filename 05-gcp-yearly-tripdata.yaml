@@ -1,0 +1,39 @@
+id: gcp_yearly_tripdata
+namespace: zoomcamp
+
+inputs:
+  - id: taxi_type
+    type: SELECT
+    displayName: Select taxi type
+    values: [yellow, green]
+    defaults: yellow
+
+  - id: year
+    type: SELECT
+    displayName: Select year
+    values: ["2019", "2020", "2021"]
+    defaults: "2020"
+    allowCustomValue: true 
+
+tasks:
+  - id: count_all_tables
+    type: io.kestra.plugin.gcp.bigquery.Query
+    projectId: "{{ kv('GCP_PROJECT_ID') }}"
+    sql: |
+      SELECT SUM(row_count) AS total_rows
+      FROM (
+        {% for month in 1..12 %}
+        {% if month > 1 %}UNION ALL
+        {% endif %}SELECT COUNT(1) AS row_count 
+        FROM `{{ kv('GCP_PROJECT_ID') }}.{{ kv('GCP_DATASET') }}.{{ inputs.taxi_type }}_tripdata_{{ inputs.year }}_{% if month < 10 %}0{% endif %}{{ month }}_ext`
+        {% endfor %}
+      )
+    fetchType: FETCH_ONE 
+
+pluginDefaults:
+  - type: io.kestra.plugin.gcp
+    values:
+      serviceAccount: "{{ secret('GCP_SERVICE_ACCOUNT') }}"
+      projectId: "{{kv('GCP_PROJECT_ID')}}"
+      location: "{{kv('GCP_LOCATION')}}"
+      bucket: "{{kv('GCP_BUCKET_NAME')}}"
