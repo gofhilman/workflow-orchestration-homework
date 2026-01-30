@@ -1,0 +1,44 @@
+id: gcp_loop_taxi
+namespace: zoomcamp
+description: Orchestrates the loading of taxi data for various years, months, and taxi types by calling a subflow.
+
+inputs:
+  - id: taxi_types
+    type: ARRAY
+    itemType: STRING
+    defaults: [yellow, green]
+    description: List of taxi types to process.
+  - id: years
+    type: ARRAY
+    itemType: STRING
+    defaults: ["2019", "2020", "2021"]
+    description: List of years to process.
+  - id: months
+    type: ARRAY
+    itemType: STRING
+    defaults: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
+    description: List of months to process.
+
+tasks:
+  - id: for_each_taxi_type
+    type: io.kestra.plugin.core.flow.ForEach
+    values: "{{ inputs.taxi_types }}"
+    tasks:
+      - id: for_each_year
+        type: io.kestra.plugin.core.flow.ForEach
+        values: "{{ inputs.years }}" 
+        tasks:
+          - id: for_each_month
+            type: io.kestra.plugin.core.flow.ForEach
+            values: "{{ inputs.months }}"
+            tasks:
+              - id: call_load_subflow
+                type: io.kestra.plugin.core.flow.Subflow
+                namespace: zoomcamp
+                flowId: gcp_taxi
+                inputs:
+                  taxi: "{{ parents[1].taskrun.value }}"
+                  year: "{{ parents[0].taskrun.value }}"
+                  month: "{{ taskrun.value }}"
+                wait: true
+                transmitFailed: true
