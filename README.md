@@ -14,6 +14,18 @@ Problems: <https://github.com/DataTalksClub/data-engineering-zoomcamp/blob/main/
 
     First, run kestra flow `kestra-flows/04-gcp-loop-taxi.yaml` by using `yellow` `taxi_types`, `2020` `years`, and all `months` inputs. Then run kestra flow `kestra-flows/05-gcp-yearly-tripdata.yaml` by using `yellow` `taxi_type` and`2020` `year` to utilize kestra to query in GCP using its template engine (pebble). The result shows the `row_count` is 24,648,499.
 
+    Alternative:
+
+    ```sql
+    CREATE OR REPLACE EXTERNAL TABLE `even-lyceum-282418.zoomcamp.yellow_tripdata_2020_ext`
+    OPTIONS (
+        format = 'CSV',
+        uris = ['gs://gofhilman-zoomcamp/yellow_tripdata_2020-*.csv']
+    );
+    
+    SELECT COUNT(*) FROM `even-lyceum-282418.zoomcamp.yellow_tripdata_2020_ext`;
+    ```
+
 4. There are 1,734,051 rows for the Yellow Taxi data for all CSV files in the year 2020.
 
     Use the same method as number 3 solution, but change the taxi type to be `green`.
