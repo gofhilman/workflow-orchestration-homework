@@ -22,8 +22,8 @@ Problems: <https://github.com/DataTalksClub/data-engineering-zoomcamp/blob/main/
         format = 'CSV',
         uris = ['gs://gofhilman-zoomcamp/yellow_tripdata_2020-*.csv']
     );
-    
-    SELECT COUNT(*) FROM `even-lyceum-282418.zoomcamp.yellow_tripdata_2020_ext`;
+
+    SELECT COUNT(1) FROM `even-lyceum-282418.zoomcamp.yellow_tripdata_2020_ext`;
     ```
 
 4. There are 1,734,051 rows for the Yellow Taxi data for all CSV files in the year 2020.
